@@ -1,0 +1,434 @@
+:root{
+  --bg:#0b0b10;
+  --panel: rgba(10,10,12,0.7);
+  --accent:#28c76f;
+  --muted:#bdbdbd;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Menu */
+.menu{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100}
+.menu-inner{background:linear-gradient(180deg,#111315,#0f1013);padding:28px;border-radius:16px;border:1px solid rgba(255,255,255,0.06);width:760px;max-width:92%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+.menu h1{margin:0 0 8px;font-size:34px}
+.menu p{margin:0 0 14px;color:var(--muted)}
+.menu-controls{display:flex;gap:12px;justify-content:center;margin-bottom:12px}
+.menu-controls button{padding:10px 16px;border-radius:8px;border:none;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600}
+.menu-footer{font-size:13px;color:var(--muted)}
+.menu-foot{display:flex;gap:16px;justify-content:center;margin-top:8px;color:var(--muted)}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+.game-mode {
+    margin: 25px 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.game-mode h3 {
+    margin-bottom: 12px;
+    font-size: 1.2em;
+}
+
+.game-mode select {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: none;
+    background: white;
+    color: #333;
+    cursor: pointer;
+}
+
+.options {
+    margin: 25px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+}
+
+.options label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.options label:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.options input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.btn-primary, .btn-secondary, .control-btn {
+    padding: 15px 35px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin: 8px;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: #667eea;
+}
+
+.btn-secondary:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.rules-content {
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.rules-content h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2.2em;
+}
+
+.rules-content h3 {
+    margin-top: 20px;
+    margin-bottom: 12px;
+    color: #ffd700;
+    font-size: 1.3em;
+}
+
+.rules-text ul {
+    list-style-position: inside;
+    line-height: 1.9;
+    margin-bottom: 15px;
+}
+
+.rules-text li {
+    margin-bottom: 10px;
+    padding-left: 10px;
+}
+
+.rules-text strong {
+    color: #ffd700;
+}
+
+/* HUD Styles */
+#hud {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 100;
+    max-width: 350px;
+}
+
+#hud.active {
+    display: flex;
+}
+
+.hud-panel {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 15px 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Mode Display */
+#modeDisplay {
+    text-align: center;
+}
+
+.mode-title {
+    font-size: 0.9em;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+#currentMode {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+#maxScore {
+    font-size: 0.95em;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+/* Power Meter */
+.meter-title, .aim-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #ffd700;
+    font-size: 1.1em;
+}
+
+#powerMeter, #aimMeter {
+    height: 35px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+#powerFill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+    width: 0%;
+    transition: width 0.05s linear;
+    border-radius: 20px;
+}
+
+#powerIndicator, #aimIndicator {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 4px;
+    height: 100%;
+    background: white;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+#aimIndicator {
+    transition: left 0.1s;
+}
+
+.meter-instruction, .aim-instruction {
+    text-align: center;
+    font-size: 0.85em;
+    opacity: 0.8;
+    margin-top: 8px;
+}
+
+/* Scoreboard */
+.scoreboard-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+#scoreDisplay {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.frame-score {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.frame-score.current {
+    background: rgba(255, 215, 0, 0.2);
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #ffd700;
+}
+
+#frameInfo {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 0.95em;
+    color: #60a5fa;
+    font-weight: 600;
+}
+
+/* Series Stats */
+#seriesStats h4 {
+    margin-bottom: 12px;
+    color: #ffd700;
+    text-align: center;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 0.95em;
+}
+
+.stat-row span:last-child {
+    font-weight: bold;
+    color: #60a5fa;
+}
+
+/* Foul Warning */
+#foulWarning {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ef4444;
+    color: white;
+    padding: 30px 50px;
+    border-radius: 15px;
+    font-size: 2em;
+    font-weight: bold;
+    z-index: 999;
+    animation: foulPulse 0.5s ease-in-out;
+}
+
+@keyframes foulPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* Controls */
+#controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 12px;
+    font-size: 1em;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Scrollbar */
+#scoreDisplay::-webkit-scrollbar,
+.rules-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#scoreDisplay::-webkit-scrollbar-track,
+.rules-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+#scoreDisplay::-webkit-scrollbar-thumb,
+.rules-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+/* small responsive */
+@media (max-width:720px){
+  #meterContainer{width:86%}
+  .menu-inner{padding:18px}
+}
+
+@media (max-width: 768px) {
+    #hud {
+        max-width: 280px;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .modal-content h1 {
+        font-size: 2em;
+    }
+}

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Jigsaw Puzzle (Fixed 5/20/40/80/100 pieces)</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; padding: 18px; background:#f7f8fa; }
+  h1 { margin-bottom: 8px; }
+  #controls { margin: 12px 0; }
+  #puzzle-container { 
+    display: grid;
+    margin: 14px auto;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+  .slot {
+    box-sizing: border-box;
+    outline: 1px dashed #e0e0e0; /* outline doesn't affect layout size */
+    overflow: hidden;
+    position: relative;
+    min-width: 4px;
+    min-height: 4px;
+  }
+  .piece {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 0 0; /* set from JS */
+    background-size: cover;   /* overridden from JS to exact px size */
+    cursor: grab;
+    user-select: none;
+    display: block;
+  }
+  .piece.dragging { opacity: 0.55; }
+  #status { font-weight: 700; margin-top: 10px; color: #1a7f37; min-height: 1.2em; }
+  #info { margin-top: 6px; color:#333; font-size: 0.95rem; }
+  button { padding: 6px 12px; margin-left:6px; }
+</style>
+</head>
+<body>
+
+<h1>🧩 Jigsaw Puzzle Maker (fixed)</h1>
+
+<div id="controls">
+  <input id="imageUpload" type="file" accept="image/*">
+  <select id="difficulty">
+    <option value="5">5 pieces</option>
+    <option value="20">20 pieces</option>
+    <option value="40">40 pieces</option>
+    <option value="80">80 pieces</option>
+    <option value="100">100 pieces</option>
+  </select>
+  <button id="startBtn">Start Puzzle</button>
+  <button id="shuffleBtn">Shuffle</button>
+</div>
+
+<div id="puzzle-container" aria-hidden="false"></div>
+<div id="status"></div>
+<div id="info">Tip: choose an image, pick a difficulty (5 / 20 / 40 / 80 / 100), then Start. Drag pieces to rearrange. </div>
+
+<script>
+/* ---------- Helpers ---------- */
+function shuffleArray(a){
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ---------- Elements ---------- */
+const upload = document.getElementById('imageUpload');
+const startBtn = document.getElementById('startBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const puzzleContainer = document.getElementById('puzzle-container');
+const statusText = document.getElementById('status');
+
+let imageURL = '';
+let pieces = [];   
+let rows = 0, cols = 0, nPieces = 0;
+let containerMaxWidth = 700; // max width in px for the puzzle area
+
+/* ---------- Image Upload ---------- */
+upload.addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  // revoke previous URL if present
+  if(imageURL) try { URL.revokeObjectURL(imageURL); } catch(_) {}
+  imageURL = URL.createObjectURL(f);
+});
+
+/* ---------- Start Puzzle ---------- */
+startBtn.addEventListener('click', () => {
+  if(!imageURL){
+    alert('Please upload an image first.');
+    return;
+  }
+  statusText.textContent = '';
+  nPieces = parseInt(document.getElementById('difficulty').value, 10);
+
+  // predefined rows/cols for exact puzzle splits (ensures even division)
+  switch(nPieces){
+    case 5:  rows = 1; cols = 5; break;
+    case 20: rows = 4; cols = 5; break;
+    case 40: rows = 5; cols = 8; break;
+    case 80: rows = 8; cols = 10; break;
+    case 100: rows = 10; cols = 10; break;
+    default:
+      cols = Math.ceil(Math.sqrt(nPieces));
+      rows = Math.ceil(nPieces / cols);
+  }
+
+  // load image to get natural dimensions and then layout pieces precisely
+  const img = new Image();
+  img.onload = () => {
+    // compute container size to preserve aspect ratio and avoid upscaling heavily
+    const naturalW = img.naturalWidth;
+    const naturalH = img.naturalHeight;
+
+    // choose container width (no larger than containerMaxWidth, no larger than natural image)
+    let cw = Math.min(containerMaxWidth, naturalW);
+    if (cw < 50) cw = naturalW; // fallback if very small
+    const scale = cw / naturalW;
+    let ch = Math.round(naturalH * scale);
+
+    // compute integer tile sizes that divide evenly (avoid fractional pixels)
+    let tileW = Math.floor(cw / cols) || 1;
+    let tileH = Math.floor(ch / rows) || 1;
+
+    // recalc container to be exact multiples of tileW/tileH
+    cw = tileW * cols;
+    ch = tileH * rows;
+
+    // apply container dimensions / explicit px-based grid (prevents rounding issues)
+    puzzleContainer.style.width = cw + 'px';
+    puzzleContainer.style.height = ch + 'px';
+    puzzleContainer.style.gridTemplateColumns = `repeat(${cols}, ${tileW}px)`;
+    puzzleContainer.style.gridTemplateRows = `repeat(${rows}, ${tileH}px)`;
+    puzzleContainer.innerHTML = '';
+
+    // create slots
+    const totalSlots = rows * cols;
+    for(let s=0;s<totalSlots;s++){
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.dataset.slotIndex = s;
+      slot.style.width = `${tileW}px`;
+      slot.style.height = `${tileH}px`;
+      slot.addEventListener('dragover', slotDragOver);
+      slot.addEventListener('drop', slotDrop);
+      puzzleContainer.appendChild(slot);
+    }
+
+    // create pieces exactly nPieces
+    pieces = [];
+    for(let i=0;i<nPieces;i++){
+      const r = Math.floor(i / cols);
+      const c = i % cols;
+
+      const piece = document.createElement('div');
+      piece.className = 'piece';
+      piece.draggable = true;
+      piece.dataset.correctIndex = i.toString(); // correct slot index
+      piece.dataset.currentSlot = ''; // set later
+      piece.style.backgroundImage = `url(${imageURL})`;
+      // use exact container pixel dimensions for background-size and precise offsets
+      piece.style.backgroundSize = `${cw}px ${ch}px`;
+      piece.style.backgroundPosition = `-${c * tileW}px -${r * tileH}px`;
+      piece.addEventListener('dragstart', pieceDragStart);
+      piece.addEventListener('dragend', pieceDragEnd);
+
+      pieces.push(piece);
+    }
+
+    // shuffle placement into slots (there will be totalSlots slots)
+    const slotIndices = [...Array(totalSlots).keys()];
+    shuffleArray(slotIndices);
+
+    for(let i=0;i<nPieces;i++){
+      const targetSlotIndex = slotIndices[i];
+      const slot = puzzleContainer.querySelector(`[data-slot-index='${targetSlotIndex}']`);
+      slot.appendChild(pieces[i]);
+      pieces[i].dataset.currentSlot = targetSlotIndex.toString();
+    }
+
+    // done — check win (rare that random placement is solved)
+    checkWin();
+  };
+
+  img.onerror = () => {
+    alert('Failed to load the image. Try another file.');
+  };
+
+  img.src = imageURL;
+});
+
+/* ---------- Shuffle ---------- */
+shuffleBtn.addEventListener('click', () => {
+  if(!pieces || pieces.length === 0) return;
+  const totalSlots = rows * cols;
+  const slotIndices = [...Array(totalSlots).keys()];
+  shuffleArray(slotIndices);
+  pieces.forEach((p, i) => {
+    const slotIdx = slotIndices[i];
+    const slot = puzzleContainer.querySelector(`[data-slot-index='${slotIdx}']`);
+    slot.appendChild(p);
+    p.dataset.currentSlot = slotIdx.toString();
+  });
+  statusText.textContent = '';
+});
+
+/* ---------- Drag & Drop ---------- */
+let draggedPiece = null;
+
+function pieceDragStart(e){
+  draggedPiece = this;
+  this.classList.add('dragging');
+  try { e.dataTransfer.setData('text/plain', this.dataset.correctIndex); } catch(err){}
+}
+
+function pieceDragEnd(){
+  if(this) this.classList.remove('dragging');
+  draggedPiece = null;
+}
+
+function slotDragOver(e){
+  e.preventDefault();
+}
+
+function slotDrop(e){
+  e.preventDefault();
+  if(!draggedPiece) return;
+
+  const targetSlot = this;
+  const toIndex = parseInt(targetSlot.dataset.slotIndex, 10);
+  const fromIndex = parseInt(draggedPiece.dataset.currentSlot, 10);
+
+  if(fromIndex === toIndex){
+    // dropped into same slot — nothing to do
+    draggedPiece.classList.remove('dragging');
+    draggedPiece = null;
+    return;
+  }
+
+  // find fromSlot (should exist)
+  const fromSlot = puzzleContainer.querySelector(`[data-slot-index='${fromIndex}']`);
+
+  // if slot already has a piece, swap them
+  const existing = targetSlot.querySelector('.piece');
+
+  // move draggedPiece into targetSlot
+  targetSlot.appendChild(draggedPiece);
+  draggedPiece.dataset.currentSlot = toIndex.toString();
+
+  if(existing){
+    // move existing piece to fromSlot
+    fromSlot.appendChild(existing);
+    existing.dataset.currentSlot = fromIndex.toString();
+  }
+
+  // cleanup
+  if(draggedPiece) draggedPiece.classList.remove('dragging');
+  draggedPiece = null;
+
+  checkWin();
+}
+
+/* ---------- Win Check ---------- */
+function checkWin(){
+  if(!pieces || pieces.length === 0) return;
+  const solved = pieces.every(p => {
+    const cur = parseInt(p.dataset.currentSlot, 10);
+    const corr = parseInt(p.dataset.correctIndex, 10);
+    return cur === corr;
+  });
+
+  if(solved){
+    statusText.textContent = '🎉 Congratulations — Puzzle Solved!';
+  } else {
+    statusText.textContent = '';
+  }
+}
+function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+</script>
+</body>
+</html>

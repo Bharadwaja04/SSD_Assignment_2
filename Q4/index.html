@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stoplight Game — Human vs Computer</title>
+<style>
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    padding: 40px;
+    text-align: center;
+    background: linear-gradient(135deg, #f9f9f9, #e3f2fd);
+    color: #333;
+  }
+  h1 { font-size: 2rem; margin-bottom: 10px; color: #1565c0; }
+  p { font-size: 1.1rem; margin-bottom: 15px; }
+  button {
+    padding: 12px 24px;
+    margin: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+    color: white;
+    font-weight: bold;
+  }
+  #btnGo { background: #43a047; }
+  #btnGo:hover { background: #2e7d32; transform: scale(1.05); }
+  #btnStop { background: #e53935; }
+  #btnStop:hover { background: #b71c1c; transform: scale(1.05); }
+  #btnReset { background: #1565c0; }
+  #btnReset:hover { background: #0d47a1; transform: scale(1.05); }
+  #result {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .good { color: #2e7d32; font-weight: bold; }
+  .bad { color: #c62828; font-weight: bold; }
+  .neutral { color: #f57c00; font-weight: bold; }
+  table { border-collapse: collapse; margin: 20px auto; }
+  td, th { border: 1px solid #999; padding: 10px 15px; text-align: center; }
+  th { background: #1565c0; color: white; }
+</style>
+</head>
+<body>
+
+<h1>🚦 Stoplight Game (Human vs Computer)</h1>
+
+<p><strong>How to play:</strong> Pick “Go” or “Stop” for each round. The computer randomly picks its move. Your payoff depends on the combination:</p>
+<ul style="list-style: none; padding-left: 0; margin-bottom: 20px;">
+  <li>🚗 Both Go → Crash: -10 points each</li>
+  <li>⏹ Both Stop → Delay: -3 points each</li>
+  <li>✅ Go vs Stop → Go gets +4, Stop gets -1</li>
+  <li>✅ Stop vs Go → Stop gets -1, Go gets +4</li>
+</ul>
+
+<h3>Payoff Matrix</h3>
+<table>
+  <tr>
+    <th>Human \ Computer</th><th>Go</th><th>Stop</th>
+  </tr>
+  <tr>
+    <th>Go</th><td> -10 , -10 </td><td> 4 , -1 </td>
+  </tr>
+  <tr>
+    <th>Stop</th><td> -1 , 4 </td><td> -3 , -3 </td>
+  </tr>
+</table>
+
+<button id="btnGo">Go</button>
+<button id="btnStop">Stop</button>
+<button id="btnReset">Reset Game</button>
+
+<div id="result">Make your move to start the game!</div>
+
+<script>
+  const payoff = {
+    "Go,Go": { human: -10, comp: -10 },
+    "Stop,Stop": { human: -3, comp: -3 },
+    "Go,Stop": { human: 4, comp: -1 },
+    "Stop,Go": { human: -1, comp: 4 }
+  };
+
+  const btnGo = document.getElementById("btnGo");
+  const btnStop = document.getElementById("btnStop");
+  const btnReset = document.getElementById("btnReset");
+  const resultDiv = document.getElementById("result");
+
+  // Game state
+  let humanScore = 0;
+  let compScore = 0;
+  let round = 0;
+  const totalRounds = 10;
+  let gameOver = false;
+
+  btnGo.addEventListener("click", () => playRound("Go"));
+  btnStop.addEventListener("click", () => playRound("Stop"));
+  btnReset.addEventListener("click", resetGame);
+
+  function playRound(humanMove) {
+    if(gameOver) return;
+
+    round++;
+    const compMove = (Math.random() < 0.5) ? "Go" : "Stop";
+    const key = humanMove + "," + compMove;
+    const p = payoff[key];
+
+    humanScore += p.human;
+    compScore += p.comp;
+
+    function payoffSpan(val) {
+      if (val > 0) return `<span class="good">${val}</span>`;
+      if (val < -50) return `<span class="bad">${val}</span>`;
+      if (val < 0) return `<span class="neutral">${val}</span>`;
+      return val;
+    }
+
+    let txt = `<h2>Round ${round} of ${totalRounds}</h2>`;
+    txt += `<p>You chose: ${humanMove} | Computer chose: ${compMove}</p>`;
+    txt += `<p>Your payoff: ${payoffSpan(p.human)} &nbsp;&nbsp; | &nbsp;&nbsp; Computer payoff: ${payoffSpan(p.comp)}</p>`;
+    txt += `<p><strong>Total Scores:</strong> You: ${humanScore} &nbsp;&nbsp; | &nbsp;&nbsp; Computer: ${compScore}</p>`;
+
+    // Check Nash equilibrium
+    const altHumanKey = (humanMove === "Go" ? "Stop," : "Go,") + compMove;
+    const altCompKey = humanMove + "," + (compMove === "Go" ? "Stop" : "Go");
+    const altHumanPayoff = payoff[altHumanKey].human;
+    const altCompPayoff = payoff[altCompKey].comp;
+
+    let isNE = true;
+    if (altHumanPayoff > p.human) isNE = false;
+    if (altCompPayoff > p.comp) isNE = false;
+
+    if (isNE) {
+      txt += `<p style="color: green; font-weight: bold;">✅ This outcome is a Nash Equilibrium!</p>`;
+    } else {
+      txt += `<p style="color: red; font-weight: bold;">❌ This is not a Nash Equilibrium.</p>`;
+    }
+
+    // Check if game over
+    if(round >= totalRounds){
+      gameOver = true;
+      txt += `<h3>🏁 Game Over</h3>`;
+      if(humanScore > compScore){
+        txt += `<p style="color: green; font-weight: bold;">You win! 🎉</p>`;
+      } else if(compScore > humanScore){
+        txt += `<p style="color: red; font-weight: bold;">Computer wins! 💻</p>`;
+      } else {
+        txt += `<p style="color: orange; font-weight: bold;">It's a tie! 🤝</p>`;
+      }
+    }
+
+    resultDiv.innerHTML = txt;
+  }
+
+  function resetGame() {
+    humanScore = 0;
+    compScore = 0;
+    round = 0;
+    gameOver = false;
+    resultDiv.innerHTML = "Game reset! Make your move to start the game!";
+  }
+
+  function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+</script>
+
+</body>
+</html>

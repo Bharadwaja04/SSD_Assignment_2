@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>CS6.302 SSD Monsoon 2025</title>
+  <link href="https://fonts.googleapis.com/css?family=Quicksand|Times+New+Roman" rel="stylesheet">
+  <style>
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;   
+}
+
+
+header { 
+  position: relative; 
+  padding: 1rem 2rem; 
+  background: linear-gradient(to right, #8E95B8 24%, #4b4f6a 75%); 
+  color: white; 
+}
+
+h1, h3 { 
+  margin: 0.2rem 0; 
+  text-align: center; 
+  font-family: 'Times New Roman', serif; 
+  font-size: 28px; 
+}
+
+
+.burger { 
+  position: fixed;
+  top: 1rem;             
+  left: 1rem; 
+  z-index: 1100;         
+  width: 30px; 
+  cursor: pointer; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  height: 22px; 
+}
+
+.burger span { 
+  background: white; 
+  height: 3px; 
+  border-radius: 2px; 
+  transition: transform .3s, opacity .3s; 
+}
+
+.menu { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 280px; 
+  height: 100%; 
+  background: linear-gradient(to bottom, #404658 38%, #8A96BE 88%); 
+  color: white; 
+  padding: 2rem 1rem; 
+  transform: translateX(-100%);  
+  transition: transform 0.3s ease-in-out; 
+  z-index: 1100; 
+}
+
+body.menu-open .menu {
+  transform: translateX(0);      
+}
+
+
+body.menu-open .burger span:nth-child(1) {
+  transform: rotate(45deg) translateY(8px); 
+}
+body.menu-open .burger span:nth-child(2) { 
+  opacity: 0; 
+}
+body.menu-open .burger span:nth-child(3) { 
+  transform: rotate(-45deg) translateY(-8px); 
+}
+
+
+body.menu-open header,
+body.menu-open .content { 
+  margin-left: 280px; 
+  transition: margin-left 0.3s; 
+}
+
+.menu ul { 
+  list-style:none; 
+  padding:0; 
+  margin-top: 3rem; 
+}
+
+.menu li { 
+  padding: 0.75rem 1rem; 
+  border-bottom: 1px solid rgba(255,255,255,0.2); 
+  position: relative; 
+  cursor:pointer; 
+}
+
+.menu li:hover, .menu li.active { 
+  background: rgba(255,255,255,0.1); 
+}
+
+.menu li::after { 
+  content: "›"; 
+  position:absolute; 
+  right:1rem; 
+  opacity:0; 
+  transition: opacity .3s, transform .3s; 
+}
+
+.menu li:hover::after, 
+.menu li.active::after { 
+  opacity:1; 
+  transform: translateX(5px); 
+}
+
+h2 { 
+  font-size: 24px; 
+  text-align: center; 
+}
+
+.content { 
+  padding: 2rem; 
+}
+
+.content-section { 
+  display: none; 
+}
+
+.content-section.active { 
+  display: block; 
+}
+
+
+table {
+  width: 85%;                  
+  margin: 2rem auto;            
+  border-collapse: collapse;
+  font-size: 22px;              
+}
+
+table th, table td {
+  border: 1px solid #666;       
+  padding: 12px 18px;           
+  text-align: center;
+}
+
+table th {
+  background-color: #3F4252;    
+  color: white;           
+  font-weight: bold;
+}
+
+table tr:nth-child(even) {
+  background-color: #f9f9f9;    
+}
+
+table tr:hover {
+  background-color: #e2e6f0;    
+  transition: 0.2s ease-in-out;
+}
+
+p { 
+  text-align: center; 
+  line-height: 1.6; 
+  font-size: 25px; 
+  padding: 0 10px; 
+  margin: 0; 
+}
+
+ul {padding: 0;  list-style-type: disc; text-align: left; margin: 0 auto; width: 85%;}
+
+ul li {
+  text-align: justify;
+  font-size: 25px; 
+  line-height: 1.6; 
+  text-align: left; 
+  margin-bottom: 1.5rem; 
+  padding: 0 10px;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="burger" onclick="document.body.classList.toggle('menu-open')">
+      <span></span><span></span><span></span>
+    </div>
+    <h1>CS6.302&nbsp;– Software System Development</h1>
+    <h3>Software Engineering Research Center, IIIT Hyderabad</h3>
+    <h3>Monsoon 2025</h3>
+  </header>
+
+  <nav class="menu">
+    <ul>
+      <li class="active" onclick="showSection('about', this)">About</li>
+      <li onclick="showSection('lecture', this)">Lecture / Lab / Office Hours</li>
+      <li onclick="showSection('policy', this)">Course Policy</li>
+      <li onclick="showSection('lectures', this)">Lectures</li>
+      <li onclick="showSection('lab', this)">Lab</li>
+      <li onclick="showSection('exams', this)">Exams</li>
+      <li onclick="showSection('staff', this)">Staff</li>
+      <li onclick="showSection('links', this)">Important Links</li>
+    </ul>
+  </nav>
+
+  <section id="about" class="content-section active">
+  <h2>About</h2>
+  <p style="text-align: justify;">
+    <b>Software System Development</b> is a graduate-level course that equips students with a comprehensive understanding of the principles, tools, and practices involved in designing and building modern software systems. Emphasizing a systems-oriented perspective, the course explores foundational and contemporary topics including Operating Systems, Computer Networks, Software Engineering methodologies, and Database Systems (both relational and NoSQL).
+<br>
+<br>
+Students will gain practical experience with industry-relevant tools and technologies such as Bash scripting, SQL, NoSQL databases, HTML, CSS, JavaScript, front-end frameworks, RESTful APIs, Python, and Flask. The course focuses on building scalable, maintainable, and secure software systems while fostering an appreciation for system integration, version control, development workflows, and deployment strategies.
+<br>
+<br>
+Designed for students with a fundamental background in programming, this course bridges theory and practice, preparing them to contribute effectively to complex software development projects in both research and industry settings.
+  </p>
+</section>
+
+
+<section id="lecture" class="content-section">
+  <h2>Lecture / Lab / Office Hours</h2>
+  <p>The lectures will be in-person and will be conducted by the Instructor. The lab sessions will be in-person and will be conducted by the Teaching Assistants. The lecture material (slides, lectures notes, Suppl Material) can be accessed from this website The lecture and lab hours are mentioned below:</p>
+  <br>
+  <br>
+  <p><strong>Lecture:</strong> 8:30 AM to 9:55 AM - Tuesdays &amp; Fridays - Lecture Hall: H-205 - 29 Classes</p>
+  <br>
+  <p><strong>Lab:</strong> 2:00 PM to 3:00 PM @ SH1 & 2:00 PM to 5:00 PM - Friday - Lecture Hall: SH1 - 14 Sessions</p>
+  <br>
+  <br>
+  <p><strong>Office Hours:</strong> There are no specific instructor office hours. Instructor is available to meet all the students for 15 minutes before every class to address any queries or concerns. You can also directly write to instructor at <b>saianirudh.karre@]iiit.ac.in</b> to get your queries addressed. TA office hours can be found here.</p>
+</section>
+
+
+<section id="policy" class="content-section">
+  <h2>Course Policy</h2>
+  <ul>
+    <li>
+      <strong>Teaching and Learning Methodology:</strong> This course is designed in such a manner to help learners get the essence of principles behind good software system development. Learners will be taught concepts by making them work on real-life problems. This will promote deeper engagement, deeper understanding and resembles the true career situation. Overall Course Notes can be found here.
+    </li>
+
+    <li>
+      <strong>Academic Honesty:</strong> If A helps B in a Task X → B doesn't get opportunity to do task X, B doesn't learn the skill to do task X, B gets spoilt-dependent-unfit for jobs requiring skills of task X. You may think it is okay to do it only once and not repeat it, but when a task is done once it gets wired into the brain as being "okay" and unless there is a strong reason it will repeat. <em>If you want to help, help to learn!</em>
+    </li>
+
+    <li>
+      <strong>Zero Tolerance on Plagiarism:</strong> This course requires students to submit assignments, participate in in-class activities, give mid and final exams, work with groups on projects, and so on. Any forms of cheating or plagiarism will result in a score of "0" for projects, assignments or exams. Egregious cases will result in a grade of "F" for the course.
+    </li>
+
+    <li>
+      <strong>Absentee Policy:</strong> You are expected to attend and participate in all lectures and lab sessions (graded or ungraded). However, if any quiz/activity is held during the lecture session that you are absent, you will be given a '0' for the same. There will be <u>NO</u> make up classes/quizzes/activities. These rules are not meant to be demeaning or penalizing—they are stated to establish a clear understanding of the course expectations and to motivate students to learn.
+    </li>
+
+    <li>
+      <strong>Miscellaneous Instructions:</strong> Given the subject is based on building software systems, ensure you have a laptop with decent configuration. Please make every effort to participate in the in-class discussions, interact with the instructor during class, and interact with the TAs during the labs. You are expected to attend the class with your personal machine.
+    </li>
+
+    <li>
+      <strong>Use of AI Tools:</strong> Students are free to use different AI tools like ChatGPT, Co-pilot, etc. for the course assignments/activities. However, please do mention what tools and how they have been used in the submission report. Please note that these tools can mislead or provide wrong solutions. It is important to know the concept before using the tools. Tools are at the end of the day enablers. Today it will be ChatGPT, tomorrow it will be something else—but the <strong>concepts need to be clear</strong> to leverage the different tools. Bottom line: feel free to use different tools, but use them wisely!
+    </li>
+
+    <li>
+      <strong>Submission Deadlines:</strong> Considering this course has more than 100+ enrolled students, there will be <u>NO extensions</u> for any graded task. It is your responsibility to submit an assignment or a lab activity on the prescribed deadline. Please do not wait until the last minute to submit. We will not entertain last-minute issues due to Moodle. The instructors and TAs shall provide considerable time with a grace period for submissions. For health issues, games, conferences, or personal reasons, please work with the academic office for exemptions.
+    </li>
+
+    <li>
+      <strong>Grading Policy:</strong> Once a grade for a course deliverable (labs, assignments, quiz, exam, etc.) is released, the students may request a re-evaluation (with appropriate reasons) of the grade up to a week after posting. After that, the student may not discuss prior grades with the instructor (even if the instructors or TAs are at fault). There will be no makeup activity/lab under any circumstances unless prior permission is granted from the Academic Office. Late submissions will not be entertained unless there is a genuine health reason. Appropriate medical documentation will be needed in such cases—please work with the academic office for exemption.
+    </li>
+  </ul>
+
+
+  <h3>Grading Distribution</h3>
+  <p>The course instructor reserves the right to make minor modifications to the above distribution based on the progress of the courses. Below is the overall grade distribution.</p>
+  <table>
+    <tr><th>Deliverables</th><th>Weightage</th></tr>
+    <tr><td>Assignments (4)</td><td>15%</td></tr>
+    <tr><td>Lab Activities (14)</td><td>15%</td></tr>
+    <tr><td>Practice and Class Activity (5)</td><td>10%</td></tr>
+    <tr><td>Quiz (2)</td><td>10%</td></tr>
+    <tr><td>Midterm (1)</td><td>10%</td></tr>
+    <tr><td>Final Exam (Team Project)</td><td>40%</td></tr>
+  </table>
+
+  <h3>Evaluation Rubric</h3>
+  <p>All evaluations as part of this course follow below evaluation rubric. TAs will follow below guidelines for evaluating assignments and lab activities for this course.</p>
+  <table>
+    <tr>
+      <th>Rubric</th>
+      <th>Input (15%)</th>
+      <th>Logic (60%)</th>
+      <th>Output (15%)</th>
+      <th>Submission (10%)</th>
+    </tr>
+    <tr>
+      <td><strong>Exceptional (100%)</strong></td>
+      <td>All inputs are working as per the requirements</td>
+      <td>Logic is accurate and as per the requirements defined in the question.</td>
+      <td>All outputs are returned as per the requirements</td>
+      <td>Script submissions are correct and as per requirements</td>
+    </tr>
+    <tr>
+      <td><strong>Acceptable (70%)</strong></td>
+      <td>Inputs are partially working as per the requirements</td>
+      <td>Logic is almost correct and as per the requirements defined in the question</td>
+      <td>Outputs are partially returned as per the requirements</td>
+      <td>Script submissions is partially correct and as per requirements</td>
+    </tr>
+    <tr>
+      <td><strong>Beginning (30%)</strong></td>
+      <td>At least one input is working as per the requirements</td>
+      <td>Logic is partially correct and as per the requirements defined in the question</td>
+      <td>At least one output is returned as per the requirement</td>
+      <td>Atleast one part of the script submission is correct and as per requirements</td>
+    </tr>
+    <tr>
+      <td><strong>No Response (0%)</strong></td>
+      <td>None of the inputs are working as per the requirements</td>
+      <td>Logic is incorrect and not as per the requirements defined in the question</td>
+      <td>None of the outputs are returned as per the requirements</td>
+      <td>Script submissions is incorrect and not as per requirements</td>
+    </tr>
+  </table>
+</section>
+
+<section id="lectures" class="content-section">
+  <h2>Lecture Schedule & Content</h2>
+  <table>
+    <tr>
+      <th>S.No</th>
+      <th>Schedule</th>
+      <th>Lecture Content</th>
+      <th>Material</th>
+    </tr>
+    <tr><td>1</td><td>01-Aug-25 (Friday)</td><td>Course Intro - Software Systems</td><td>[Slides][Notes]</td></tr>
+    <tr><td>2</td><td>05-Aug-25 (Tuesday)</td><td>Relational Data</td><td>[Slides][Notes]</td></tr>
+    <tr><td>3</td><td>08-Aug-25 (Friday)</td><td>Unstructured Data - Session 1</td><td>[Slides][Notes]</td></tr>
+    <tr><td>4</td><td>12-Aug-25 (Tuesday)</td><td>Unstructured Data - Session 2 <strong>[Cancelled - Rain ⛈️]</strong></td><td>[Notes] [Scripts]</td></tr>
+    <tr><td>5</td><td>19-Aug-25 (Tuesday)</td><td>Unstructured Data - Session 2</td><td>[Practice][Notes]</td></tr>
+    <tr><td>6</td><td>22-Aug-25 (Friday)</td><td>Web - HTML</td><td>[Web-Slides][HTML-Slides][Notes][Scripts]</td></tr>
+    <tr><td>7</td><td>26-Aug-25 (Tuesday)</td><td>Web - CSS</td><td>[Notes][Scripts]</td></tr>
+    <tr><td>8</td><td>29-Aug-25 (Friday)</td><td>JavaScript - Session 1</td><td>[Scripts][Slides]</td></tr>
+    <tr><td>9</td><td>02-Sep-25 (Tuesday)</td><td>JavaScript - Session 2</td><td>[Scripts][Notes]</td></tr>
+    <tr><td>10</td><td>04-Sep-25 (Thursday)</td><td>JavaScript - Session 3 <strong>[Cancelled - Instructor Sick 🤒]</strong></td><td>[Scripts][Notes]</td></tr>
+    <tr><td>11</td><td>09-Sep-25 (Tuesday)</td><td>JavaScript - Session 3</td><td>[Notes][Scripts]</td></tr>
+    <tr><td>12</td><td>12-Sep-25 (Friday)</td><td>React JS</td><td>[Notes][Slides]</td></tr>
+    <tr><td>13</td><td>26-Sep-25 (Friday)</td><td>System Design - Session 1</td><td>[Notes][Slides]</td></tr>
+    <tr><td>14</td><td>26-Sep-25 (Friday) @ 3PM-5PM</td><td>System Design - Session 2</td><td>[Notes][Slides]</td></tr>
+    <tr><td>15</td><td>30-Sep-25 (Tuesday)</td><td>SHELL - Session 1</td><td>[Notes][Slides]</td></tr>
+    <tr><td>16</td><td>03-Oct-25 (Friday)</td><td>SHELL - Session 2</td><td>[Notes][Slides]</td></tr>
+    <tr><td>17</td><td>07-Oct-25 (Tuesday)</td><td>Python - Session 1</td><td>[Notes][Slides]</td></tr>
+    <tr><td>18</td><td>10-Oct-25 (Friday)</td><td>Python - Session 2</td><td>[Notes][Slides]</td></tr>
+    <tr><td>19</td><td>14-Oct-25 (Tuesday)</td><td>Python - Session 3</td><td>[Notes][Slides]</td></tr>
+    <tr><td>20</td><td>17-Oct-25 (Friday)</td><td>Python - Session 4</td><td>[Notes][Slides]</td></tr>
+    <tr><td>21</td><td>24-Oct-25 (Friday)</td><td>Python - Session 5</td><td>[Notes][Slides]</td></tr>
+    <tr><td>22</td><td>28-Oct-25 (Tuesday)</td><td>Python - Session 6</td><td>[Notes][Slides]</td></tr>
+    <tr><td>23</td><td>31-Oct-25 (Friday)</td><td>Python - Session 7</td><td>[Notes][Slides]</td></tr>
+    <tr><td>24</td><td>07-Nov-25 (Friday)</td><td>Python - Session 8</td><td>[Notes][Slides]</td></tr>
+    <tr><td>25</td><td>11-Nov-25 (Tuesday)</td><td>Python - Session 9</td><td>[Notes][Slides]</td></tr>
+    <tr><td>26</td><td>14-Nov-25 (Friday)</td><td>Python - Session 10</td><td>[Notes][Slides]</td></tr>
+    <tr><td>27</td><td>18-Nov-25 (Tuesday)</td><td>Retrospection</td><td>[Notes][Slides]</td></tr>
+  </table>
+</section>
+
+
+<section id="lab" class="content-section">
+  <h2>Lab Schedule & Content</h2>
+  <table>
+    <tr>
+      <th>Lab No.</th>
+      <th>Schedule</th>
+      <th>Topic</th>
+      <th>Notes</th>
+    </tr>
+    <tr><td>01</td><td>07-Aug-2025 (Friday)</td><td>Git Session</td><td>[Slides][Activity]</td></tr>
+    <tr><td>02</td><td>14-Aug-2025 (Thursday) @ 2PM-3PM</td><td>SQL Session</td><td>[Slides][Activity]</td></tr>
+    <tr><td>03</td><td>21-Aug-2025 (Thursday) @ 2PM-3PM</td><td>NoSQL Session</td><td>[Slides][Activity] [Example]</td></tr>
+    <tr><td>04</td><td>28-Aug-2025 (Thursday) @ 2PM-3PM</td><td>DOM</td><td>[Slides & Activity]</td></tr>
+    <tr><td>05</td><td>04-Sept-2025 (Friday) @ 2PM-5PM</td><td>JS Session</td><td>[Slides & Activity]</td></tr>
+    <tr><td>06</td><td>18-Sept-2025 (Thursday) @ 2PM-3PM</td><td>REST API</td><td>[Slides][Activity]</td></tr>
+    <tr><td>07</td><td>19-Sept-2025 (Friday) @ 8:30AM-9:55AM (H205)</td><td>MERN Session - NodeJS</td><td>[Slides][Activity]</td></tr>
+    <tr><td>08</td><td>19-Sept-2025 (Friday) @ 2PM-5PM</td><td>MERN App - Session 2</td><td>[Slides][Activity]</td></tr>
+    <tr><td>09</td><td>20-Oct-2025 (Saturday) @ 2PM-5PM</td><td>MERN App - Session 3</td><td>[Slides][Activity]</td></tr>
+    <tr><td>10</td><td>03-Oct-2025 (Friday)</td><td>SHELL Session 1</td><td>[Slides][Activity]</td></tr>
+    <tr><td>11</td><td>09-Oct-2025 (Thursday) @ 2PM-3PM</td><td>SHELL Session 2</td><td>[Slides][Activity]</td></tr>
+    <tr><td>12</td><td>10-Oct-2025 (Friday) @ 2PM-5PM</td><td>—</td><td>[Slides][Activity]</td></tr>
+    <tr><td>13</td><td>17-Oct-2025 (Friday) @ 2PM-5PM</td><td>Python Session 2</td><td>[Slides][Activity]</td></tr>
+    <tr><td>14</td><td>24-Oct-2025 (Friday) @ 2PM-5PM</td><td>Python Session 3</td><td>[Slides][Activity]</td></tr>
+    <tr><td>15</td><td>07-Nov-2025 (Friday) @ 2PM-5PM</td><td>FASTAPI - Session 1</td><td>[Slides][Activity]</td></tr>
+    <tr><td>16</td><td>14-Nov-2025 (Friday) @ 2PM-5PM</td><td>FASTAPI - Session 2</td><td>[Slides][Activity]</td></tr>
+  </table>
+</section>
+
+
+<section id="exams" class="content-section">
+  <h2>Exams</h2>
+  <table>
+    <tr>
+      <th>S.No</th>
+      <th>Exam Type</th>
+      <th>Announcement</th>
+      <th>Submission Due</th>
+      <th>Material</th>
+    </tr>
+    <tr><td>1</td><td>Assignment - SQL, NoSQL</td><td>15-Aug-2025</td><td>05-Sept-2025</td><td>[Paper]</td></tr>
+    <tr><td>2</td><td>Assignment - Web</td><td>06-Sept-2025</td><td>27-Sept-2025</td><td>[Paper]</td></tr>
+    <tr><td>3</td><td>Assignment - SHELL</td><td>28-Sept-2025</td><td>19-Oct-2025</td><td>[Paper][Key]</td></tr>
+    <tr><td>4</td><td>Assignment - Python</td><td>20-Oct-2025</td><td>10-Nov-2025</td><td>[Paper][Key]</td></tr>
+    <tr><td>5</td><td>SQL Practice</td><td>05-Aug-2025</td><td>10-Aug-2025</td><td>[Paper]</td></tr>
+    <tr><td>6</td><td>HTML & CSS Practice</td><td>15-Aug-2025</td><td>21-Aug-2025</td><td>[Paper][Key]</td></tr>
+    <tr><td>7</td><td>QUIZ 1</td><td>29-Aug-2025 2:30 PM</td><td>29-Aug-2025 3:30 PM</td><td>[Paper][Key]</td></tr>
+    <tr><td>8</td><td>QUIZ 2</td><td>31-Oct-2025 2:30 PM</td><td>31-Oct-2025 3:30 PM</td><td>[Paper][Key]</td></tr>
+    <tr><td>9</td><td>MID Exam</td><td>TBA</td><td>TBA</td><td>[Paper][Key]</td></tr>
+    <tr><td>10</td><td>Final Project</td><td>01-Sept-2025</td><td>02-Dec-2025</td><td>[Paper][Key]</td></tr>
+    <tr><td>11</td><td>Class Activity - Profile Page</td><td>26-Aug-2025</td><td>26-Aug-2025</td><td>[Submission]</td></tr>
+    <tr><td>12</td><td>Class Activity - JavaScript</td><td>09-Sept-2025</td><td>09-Sept-2025</td><td>[Paper][Key]</td></tr>
+    <tr><td>13</td><td>Class Activity - SHELL</td><td>10-Oct-2025</td><td>10-Oct-2025</td><td>[Paper][Key]</td></tr>
+    <tr><td>14</td><td>Class Activity - Python</td><td>14-Nov-2025</td><td>14-Nov-2025</td><td>[Paper][Key]</td></tr>
+  </table>
+</section>
+
+
+<section id="staff" class="content-section">
+  <h2>Staff</h2>
+  <p><strong>Instructors:</strong></p>
+  <ul>
+    <li>Dr. Abhishek Singh</li>
+    <li>Dr. Sai Anirudh Karre</li>
+  </ul>
+
+  <p><strong>Teaching Assistants:</strong></p>
+  <ul>
+    <li>Chirag Dhamija</li>
+    <li>Tejas Cavale</li>
+    <li>Divyansh Pandey</li>
+    <li>Aaditya Vardhan Narain</li>
+    <li>Kunal Kamalkishire Bhosikar</li>
+    <li>Chandrasekar S</li>
+    <li>Ashwani Raj</li>
+    <li>Hiya Bhatt</li>
+  </ul>
+</section>
+
+
+<section id="links" class="content-section">
+  <h2>Important Links</h2>
+  <ul>
+    <li><a href="https://intranet.iiit.ac.in/offices/static/files/Almanac_M25_Final-Ver2.1.pdf" target="_blank">Monsoon 2025 Almanac</a></li>
+    <li><a href="https://intranet.iiit.ac.in/offices/static/files/Lecture%20timetable%20for%20Monsoon_2025_V1.2.pdf" target="_blank">Spring 2025 Lecture Timetable</a></li>
+    <li><a href="https://intranet.iiit.ac.in/offices/static/files/Tutorials%26LAB_Schedule_M25-V2.pdf" target="_blank">Spring 2025 Lab Timetable</a></li>
+    <li><a href="https://login.iiit.ac.in/" target="_blank">Courses Portal</a></li>
+  </ul>
+</section>
+
+
+  </main>
+
+  <script>
+    function showSection(id, el) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
+      el.classList.add('active');
+      document.body.classList.remove('menu-open');
+    }
+
+    function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+  </script>
+</body>
+</html>

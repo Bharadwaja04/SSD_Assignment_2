@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Dictionary Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f7f7f7;
+    }
+    header {
+      background: #34495e; color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 20px;
+    }
+    textarea {
+      width: 100%; height: 150px;
+      font-family: monospace;
+    }
+    button {
+      background: #2980b9;
+      color: white; border: none;
+      padding: 10px 20px; margin: 10px 0;
+      cursor: pointer; border-radius: 4px;
+    }
+    button:hover { background: #1c5980; }
+    table {
+      border-collapse: collapse;
+      margin: 20px 0; width: 100%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd; padding: 8px;
+    }
+    th { background: #2c3e50; color: white; }
+    .diagram {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      background: white;
+      overflow: auto;
+    }
+    svg {
+      width: 100%; height: 500px;
+    }
+    .instructions {
+      background: #ecf0f1;
+      padding: 10px; margin-top: 20px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Data Dictionary & Relationship Diagram</h1>
+  </header>
+
+  <div class="container">
+    <h3>Step 1: Paste your schema (JSON or XML)</h3>
+    <textarea id="schemaInput" placeholder="Paste JSON or XML schema here..."></textarea>
+    <br>
+    <button onclick="generate()">Generate Dictionary & Diagram</button>
+    <button onclick="window.print()">Export as PDF/HTML</button>
+
+    <div id="output"></div>
+
+    <div class="instructions">
+      <h3>How to Generate Schema from Your Database:</h3>
+      <p><b>For PostgreSQL:</b></p>
+      <pre>
+pg_dump -s -f schema.sql
+# Convert schema.sql to JSON/XML using tools like sqlacodegen or custom scripts
+      </pre>
+      <p><b>For MySQL:</b></p>
+      <pre>
+mysqldump -u user -p --no-data dbname > schema.sql
+      </pre>
+      <p>Then convert to JSON/XML format as shown in the sample below:</p>
+      <pre>
+{
+  "tables": [
+    {
+      "name": "users",
+      "description": "Application users",
+      "columns": [
+        {"name":"id","type":"int","pk":true},
+        {"name":"email","type":"varchar"}
+      ]
+    }
+  ],
+  "relations": [
+    {"fromTable":"orders","fromColumn":"user_id",
+     "toTable":"users","toColumn":"id","type":"FK"}
+  ]
+}
+      </pre>
+    </div>
+  </div>
+
+  <script>
+    function parseXML(xmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlText, "application/xml");
+      const err = doc.querySelector("parsererror");
+      if (err) throw new Error("Invalid XML");
+
+      const tables = Array.from(doc.querySelectorAll("table")).map(t => {
+        const name = t.getAttribute("name") || t.querySelector("name")?.textContent;
+        const description = t.querySelector("description")?.textContent || "";
+        const columns = Array.from(t.querySelectorAll("column")).map(c => ({
+          name: c.getAttribute("name") || c.querySelector("name")?.textContent,
+          type: c.getAttribute("type") || c.querySelector("type")?.textContent || "",
+          pk: c.getAttribute("pk") === "true" || (c.querySelector("pk")?.textContent === "true")
+        }));
+        return { name, description, columns };
+      });
+
+      const relations = Array.from(doc.querySelectorAll("relation")).map(r => ({
+        fromTable: r.getAttribute("fromTable") || r.querySelector("fromTable")?.textContent,
+        fromColumn: r.getAttribute("fromColumn") || r.querySelector("fromColumn")?.textContent,
+        toTable: r.getAttribute("toTable") || r.querySelector("toTable")?.textContent,
+        toColumn: r.getAttribute("toColumn") || r.querySelector("toColumn")?.textContent,
+        type: r.getAttribute("type") || "FK"
+      }));
+
+      return { tables, relations };
+    }
+
+    function generate() {
+      const input = document.getElementById("schemaInput").value.trim();
+      if (!input) return alert("Please paste JSON or XML schema first.");
+
+      let schema;
+      try {
+        if (input.startsWith("{")) {
+          schema = JSON.parse(input);
+        } else {
+          schema = parseXML(input);
+        }
+      } catch (e) {
+        return alert("Invalid schema: " + e.message);
+      }
+
+      // Generate dictionary tables
+      let html = "<h2>Data Dictionary</h2>";
+      schema.tables.forEach(tbl => {
+        html += `<h3>${tbl.name}</h3><p>${tbl.description||""}</p>`;
+        html += "<table><tr><th>Column</th><th>Type</th><th>PK</th></tr>";
+        tbl.columns.forEach(col => {
+          html += `<tr><td>${col.name}</td><td>${col.type}</td><td>${col.pk?"✔":""}</td></tr>`;
+        });
+        html += "</table>";
+      });
+
+      // Diagram
+      html += '<h2>Relationship Diagram</h2><div class="diagram"><svg id="diagramSvg"></svg></div>';
+      document.getElementById("output").innerHTML = html;
+
+      drawDiagram(schema);
+    }
+
+    function drawDiagram(schema) {
+      const svg = document.getElementById("diagramSvg");
+      svg.innerHTML = "";
+      const width = 800, height = 500;
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+      // Place tables evenly
+      const tablePositions = {};
+      const radius = 200;
+      schema.tables.forEach((t,i) => {
+        const angle = (i/schema.tables.length) * 2 * Math.PI;
+        const x = width/2 + radius*Math.cos(angle);
+        const y = height/2 + radius*Math.sin(angle);
+        tablePositions[t.name] = {x,y};
+        const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+        rect.setAttribute("x",x-40); rect.setAttribute("y",y-20);
+        rect.setAttribute("width",80); rect.setAttribute("height",40);
+        rect.setAttribute("fill","#3498db"); rect.setAttribute("stroke","black");
+        svg.appendChild(rect);
+        const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+        label.setAttribute("x",x); label.setAttribute("y",y+5);
+        label.setAttribute("text-anchor","middle"); label.setAttribute("fill","white");
+        label.textContent = t.name;
+        svg.appendChild(label);
+      });
+
+      // Relations
+      schema.relations.forEach(r => {
+        const from = tablePositions[r.fromTable];
+        const to = tablePositions[r.toTable];
+        if (!from || !to) return;
+        const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+        line.setAttribute("x1",from.x); line.setAttribute("y1",from.y);
+        line.setAttribute("x2",to.x); line.setAttribute("y2",to.y);
+        line.setAttribute("stroke","black");
+        svg.appendChild(line);
+      });
+    }
+
+    function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+  </script>
+</body>
+</html>

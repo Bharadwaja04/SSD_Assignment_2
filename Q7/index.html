@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Bowling Alley Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Start Menu -->
+    <div id="startMenu" class="modal">
+        <div class="modal-content">
+            <h1>🎳 Bowling Alley</h1>
+            <p class="subtitle">Official Rules - 3 Game Series</p>
+            
+            <div class="game-mode">
+                <h3>Select Game Mode:</h3>
+                <select id="gameModeSelect">
+                    <option value="singles">Traditional Singles (Max: 300)</option>
+                    <option value="unified-doubles">Unified Doubles (Max: 600)</option>
+                    <option value="unified-team">Unified Team (Max: 1200)</option>
+                </select>
+            </div>
+
+            <div class="options">
+                <label>
+                    <input type="checkbox" id="enableSound" checked>
+                    Enable Sound Effects
+                </label>
+                <label>
+                    <input type="checkbox" id="enableRamp">
+                    Enable Ramp (Physical Disability)
+                </label>
+                <label>
+                    <input type="checkbox" id="foulLineEnabled" checked>
+                    Foul Line Enforcement
+                </label>
+            </div>
+
+            <button id="startGameBtn" class="btn-primary">Start Game</button>
+            <button id="rulesBtn" class="btn-secondary">View Full Rules</button>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rulesModal" class="modal" style="display: none;">
+        <div class="modal-content rules-content">
+            <h2>🎳 Official Bowling Rules</h2>
+            <div class="rules-text">
+                <h3>Scoring Rules:</h3>
+                <ul>
+                    <li><strong>Strike (X):</strong> Knock all pins with 1st ball - Score: 10 + next 2 balls</li>
+                    <li><strong>Spare (/):</strong> Knock all pins with 2nd ball - Score: 10 + next 1 ball</li>
+                    <li><strong>Open Frame:</strong> Score is just pins knocked down</li>
+                    <li><strong>10th Frame Special:</strong> Strike = 2 bonus balls, Spare = 1 bonus ball</li>
+                </ul>
+
+                <h3>Game Structure:</h3>
+                <ul>
+                    <li>Each game = 10 frames</li>
+                    <li>Series = 3 games total</li>
+                    <li>Average = (Game1 + Game2 + Game3) ÷ 3</li>
+                </ul>
+
+                <h3>Game Modes:</h3>
+                <ul>
+                    <li><strong>Singles:</strong> 1 player, max score 300</li>
+                    <li><strong>Unified Doubles:</strong> 2 players combined, max score 600</li>
+                    <li><strong>Unified Team:</strong> 4 players combined, max score 1200</li>
+                </ul>
+
+                <h3>Lane Etiquette & Rules:</h3>
+                <ul>
+                    <li>Must wear bowling shoes (wheelchair exempt)</li>
+                    <li>Bowl only on your assigned lane</li>
+                    <li>Wait for adjacent bowlers to finish</li>
+                    <li><strong>Foul Line:</strong> Stepping over = pins don't count</li>
+                    <li><strong>Ramp:</strong> Only for physical disabilities</li>
+                    <li><strong>NO Bumpers allowed</strong></li>
+                </ul>
+
+                <h3>Controls:</h3>
+                <ul>
+                    <li>Press <strong>SPACE</strong> to throw when power meter is ready</li>
+                    <li>Use <strong>ARROW KEYS</strong> to aim left/right</li>
+                    <li>Power meter shows throw strength</li>
+                </ul>
+            </div>
+            <button id="closeRulesBtn" class="btn-primary">Start Playing</button>
+        </div>
+    </div>
+
+    <!-- Game HUD -->
+    <div id="hud">
+        <!-- Mode Display -->
+        <div id="modeDisplay" class="hud-panel">
+            <div class="mode-title">Game Mode</div>
+            <div id="currentMode">Singles</div>
+            <div id="maxScore">Max: 300</div>
+        </div>
+
+        <!-- Power Meter -->
+        <div id="powerMeterContainer" class="hud-panel">
+            <div class="meter-title">POWER METER</div>
+            <div id="powerMeter">
+                <div id="powerFill"></div>
+                <div id="powerIndicator"></div>
+            </div>
+            <div class="meter-instruction">Press SPACE to throw</div>
+        </div>
+
+        <!-- Aim Indicator -->
+        <div id="aimContainer" class="hud-panel">
+            <div class="aim-title">AIM</div>
+            <div id="aimMeter">
+                <div id="aimIndicator"></div>
+            </div>
+            <div class="aim-instruction">Use ← → Arrow Keys</div>
+        </div>
+
+        <!-- Scoreboard -->
+        <div id="scoreboard" class="hud-panel">
+            <div class="scoreboard-header">
+                <span id="gameInfo">Game 1/3 - Frame 1</span>
+            </div>
+            <div id="scoreDisplay"></div>
+            <div id="frameInfo">Ball 1 of 2</div>
+        </div>
+
+        <!-- Series Stats -->
+        <div id="seriesStats" class="hud-panel">
+            <h4>Series Statistics</h4>
+            <div class="stat-row">
+                <span>Games Completed:</span>
+                <span id="gamesCompleted">0/3</span>
+            </div>
+            <div class="stat-row">
+                <span>Current Average:</span>
+                <span id="currentAverage">—</span>
+            </div>
+            <div class="stat-row">
+                <span>Best Game:</span>
+                <span id="bestGame">—</span>
+            </div>
+        </div>
+
+        <!-- Foul Warning -->
+        <div id="foulWarning" style="display: none;">
+            ⚠️ FOUL! Pins don't count!
+        </div>
+
+        <!-- Controls -->
+        <div id="controls">
+            <button id="resetBtn" class="control-btn">Reset Series</button>
+            <button id="viewRulesBtn" class="control-btn">View Rules</button>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js"
+        }
+    }
+    </script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
